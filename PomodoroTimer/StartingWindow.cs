@@ -8,9 +8,9 @@ internal static class StartingWindow
     {
         WriteLine("Welcome to Pomodoro Timer application.");
         Write("\n");
-        WriteLine("When started, this application will remain working and each 30 minutes it will play a sound.");
+        WriteLine("After 30 minutes a sound will be played.");
         Write("\n");
-        WriteLine("To start press Enter");
+        WriteLine("To start, press Enter");
     }
 
     public static string GetUserKey()

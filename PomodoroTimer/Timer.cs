@@ -9,8 +9,6 @@ namespace PomodoroTimer
         private readonly int _interval = 100;
         private static readonly int _pomodoroTime = 30;
         private readonly System.Timers.Timer _timer;
-        private readonly string _audioFileName = "Sound.mp3";
-        private readonly string _startingAudioFileName = "Start.mp3";
 
         public Timer()
         {
@@ -36,10 +34,10 @@ namespace PomodoroTimer
             Write("\n");
             WriteLine($"Current time is {currentTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
             //WriteLine($"Sound will play on {audioPlayTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
-            Task.Run(() => OutputStartingAudio());
+            Task.Run(Audio.OutputStartingAudio);
             StartCounter();
             //SetTimer();
-            OutputEndingAudio();
+            Audio.OutputEndingAudio();
         }
 
         public void StopTimer()
@@ -88,47 +86,17 @@ namespace PomodoroTimer
 
         public void OnTimedEvent(object sender, EventArgs e)
         {
-            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _audioFileName);
+            //string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _audioFileName);
 
-            using var audioFile = new AudioFileReader(fullPath);
-            using var outputDevice = new WaveOutEvent();
-            outputDevice.Init(audioFile);
-            outputDevice.Play();
+            //using var audioFile = new AudioFileReader(fullPath);
+            //using var outputDevice = new WaveOutEvent();
+            //outputDevice.Init(audioFile);
+            //outputDevice.Play();
 
-            while (outputDevice.PlaybackState == PlaybackState.Playing)
-            {
-                Thread.Sleep(1000);
-            }
-        }
-
-        public void OutputStartingAudio()
-        {
-            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _startingAudioFileName);
-
-            using var audioFile = new AudioFileReader(fullPath);
-            using var outputDevice = new WaveOutEvent();
-            outputDevice.Init(audioFile);
-            outputDevice.Play();
-
-            while (outputDevice.PlaybackState == PlaybackState.Playing)
-            {
-                Thread.Sleep(1000);
-            }
-        }
-
-        public void OutputEndingAudio()
-        {
-            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _audioFileName);
-
-            using var audioFile = new AudioFileReader(fullPath);
-            using var outputDevice = new WaveOutEvent();
-            outputDevice.Init(audioFile);
-            outputDevice.Play();
-
-            while (outputDevice.PlaybackState == PlaybackState.Playing)
-            {
-                Thread.Sleep(1000);
-            }
+            //while (outputDevice.PlaybackState == PlaybackState.Playing)
+            //{
+            //    Thread.Sleep(1000);
+            //}
         }
     }
 }

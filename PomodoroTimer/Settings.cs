@@ -9,6 +9,8 @@ internal static class Settings
 
     public static void ApplySettings()
     {
+        CursorVisible = false;
+
         SetDimensions();
     }
 
