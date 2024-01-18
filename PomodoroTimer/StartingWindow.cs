@@ -16,31 +16,11 @@ internal static class StartingWindow
     public static string GetUserKey()
     {
         ConsoleKeyInfo keyInfo;
-        string input = "";
+        string input;
 
-        do
-        {
-            keyInfo = ReadKey();
-            
-            if (keyInfo.Key != ConsoleKey.Enter)
-            {
-                Write("\n");
-                WriteLine("Input is incorrect. It needs to be Enter.");
-                continue;
-            }
-            else
-            {
-                input = keyInfo.Key.ToString();
-            }
-
-            if (string.IsNullOrEmpty(input))
-            {
-                WriteLine("Input can not be empty.");
-                continue;
-            }
-        }
-        while (keyInfo.Key != ConsoleKey.Enter);
-    
+        keyInfo = ReadKey();
+        input = keyInfo.Key.ToString();
+        
         return input;
     }
 }
