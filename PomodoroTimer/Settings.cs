@@ -4,7 +4,7 @@ namespace PomodoroTimer;
 
 internal static class Settings
 {
-    private static readonly int _windowWidth = 90;
+    private static readonly int _windowWidth = 60;
     private static readonly int _windowHeight = 20;
 
     public static void ApplySettings()

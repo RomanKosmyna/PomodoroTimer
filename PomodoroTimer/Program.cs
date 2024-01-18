@@ -8,7 +8,7 @@ class Program
 
         bool status = true;
         bool error = false;
-        Timer timer = new Timer();
+        Timer timer = new();
 
         do
         {
@@ -20,15 +20,7 @@ class Program
             }
 
             string input = StartingWindow.GetUserKey();
-            
-            //if (input != "Enter")
-            //{
-            //    Console.Write("\n");
-            //    Console.WriteLine("Please, try again.");
-            //    error = true;
-            //    continue;
-            //}
-            
+
             switch (input)
             {
                 case "Enter":

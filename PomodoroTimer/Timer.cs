@@ -1,4 +1,4 @@
-﻿using NAudio.Wave;
+﻿using System.Diagnostics;
 using System.Globalization;
 using static System.Console;
 
@@ -27,16 +27,17 @@ namespace PomodoroTimer
         public void StartTimer()
         {
             DateTime currentTime = DateTime.Now;
-            //DateTime audioPlayTime = currentTime.AddMinutes(_pomodoroTime);
+            
             Clear();
      
             WriteLine("Timer has been set.");
             Write("\n");
             WriteLine($"Current time is {currentTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
-            //WriteLine($"Sound will play on {audioPlayTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
+            
             Task.Run(Audio.OutputStartingAudio);
+
             StartCounter();
-            //SetTimer();
+
             Audio.OutputEndingAudio();
         }
 
@@ -51,6 +52,7 @@ namespace PomodoroTimer
             int totalSeconds = 1 * 10;
             int remainingSeconds = totalSeconds;
 
+            Write("\n");
             WriteLine("Time left:");
             do
             {
@@ -97,6 +99,43 @@ namespace PomodoroTimer
             //{
             //    Thread.Sleep(1000);
             //}
+        }
+
+        public static void StartNewProcess()
+        {
+            //ThreadPool.QueueUserWorkItem(_ => StartNewProcess());
+
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                RedirectStandardInput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true
+            };
+
+            Process p = new Process
+            {
+                StartInfo = psi
+            };
+
+            p.Start();
+
+            StreamWriter sw = p.StandardInput;
+            StreamReader sr = p.StandardOutput;
+
+            // Execute a command in the new process
+            sw.WriteLine("echo Hello world!");
+
+            // Optionally, you can read the output from the new process
+            string output = sr.ReadToEnd();
+            sr.Close();
+
+            Console.WriteLine($"Output from the new process:\n{output}");
+
+            // Close the input stream and wait for the process to exit
+            sw.Close();
+            p.WaitForExit();
         }
     }
 }
