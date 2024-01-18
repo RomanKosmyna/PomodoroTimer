@@ -37,8 +37,8 @@ namespace PomodoroTimer
             Task.Run(Audio.OutputStartingAudio);
 
             StartCounter();
-
-            Audio.OutputEndingAudio();
+            Break.SetBreak();
+            
         }
 
         public void StopTimer()

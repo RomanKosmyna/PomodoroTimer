@@ -20,4 +20,34 @@ internal static class Settings
         WindowHeight = _windowHeight;
         SetBufferSize(_windowWidth, _windowHeight);
     }
+
+    public static void RunApp(Timer timer)
+    {
+        bool appStatus = true;
+        bool error = false;
+
+        do
+        {
+            StartingWindow.InitialiseStartingText();
+
+            string input = StartingWindow.GetUserKey();
+
+            switch (input)
+            {
+                case "Enter":
+                    timer.StartTimer();
+                    break;
+                case "Escape":
+                    timer.StopTimer();
+                    break;
+                default:
+                    Write("\n");
+                    WriteLine("Incorrect format.");
+                    break;
+            }
+
+            ReadKey();
+        }
+        while (appStatus);
+    }
 }
