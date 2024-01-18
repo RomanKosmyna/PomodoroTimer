@@ -4,6 +4,8 @@ class Program
 {
     static void Main()
     {
+        Settings.ApplySettings();
+
         bool status = true;
         bool error = false;
         Timer timer = new Timer();
@@ -33,7 +35,7 @@ class Program
                     timer.StartTimer();
                     break;
                 case "Escape":
-                    Environment.Exit(0);
+                    timer.StopTimer();
                     break;
                 default:
                     Console.Write("\n");

@@ -6,10 +6,11 @@ namespace PomodoroTimer
 {
     internal class Timer
     {
-        private readonly int _interval = 1000;
+        private readonly int _interval = 100;
         private static readonly int _pomodoroTime = 30;
         private readonly System.Timers.Timer _timer;
-        private readonly string _audioFilePath = "Sound.mp3";
+        private readonly string _audioFileName = "Sound.mp3";
+        private readonly string _startingAudioFileName = "Start.mp3";
 
         public Timer()
         {
@@ -28,23 +29,31 @@ namespace PomodoroTimer
         public void StartTimer()
         {
             DateTime currentTime = DateTime.Now;
-            DateTime audioPlayTime = currentTime.AddMinutes(_pomodoroTime);
+            //DateTime audioPlayTime = currentTime.AddMinutes(_pomodoroTime);
             Clear();
-
-            WriteLine($"Timer has been set. Current time is {currentTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
-            WriteLine($"Sound will play on {audioPlayTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
-
+     
+            WriteLine("Timer has been set.");
+            Write("\n");
+            WriteLine($"Current time is {currentTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
+            //WriteLine($"Sound will play on {audioPlayTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
+            Task.Run(() => OutputStartingAudio());
             StartCounter();
+            //SetTimer();
+            OutputEndingAudio();
         }
 
-        public void StartCounter()
+        public void StopTimer()
+        {
+            _timer.Stop();
+        }
+
+        public static void StartCounter()
         {
             bool counterActive = true;
             int totalSeconds = 1 * 10;
             int remainingSeconds = totalSeconds;
 
-            SetTimer();
-
+            WriteLine("Time left:");
             do
             {
                 int minutes = remainingSeconds / 60;
@@ -79,7 +88,37 @@ namespace PomodoroTimer
 
         public void OnTimedEvent(object sender, EventArgs e)
         {
-            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _audioFilePath);
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _audioFileName);
+
+            using var audioFile = new AudioFileReader(fullPath);
+            using var outputDevice = new WaveOutEvent();
+            outputDevice.Init(audioFile);
+            outputDevice.Play();
+
+            while (outputDevice.PlaybackState == PlaybackState.Playing)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+
+        public void OutputStartingAudio()
+        {
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _startingAudioFileName);
+
+            using var audioFile = new AudioFileReader(fullPath);
+            using var outputDevice = new WaveOutEvent();
+            outputDevice.Init(audioFile);
+            outputDevice.Play();
+
+            while (outputDevice.PlaybackState == PlaybackState.Playing)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+
+        public void OutputEndingAudio()
+        {
+            string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _audioFileName);
 
             using var audioFile = new AudioFileReader(fullPath);
             using var outputDevice = new WaveOutEvent();
