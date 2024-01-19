@@ -9,6 +9,7 @@ internal static class Settings
 
     public static void ApplySettings()
     {
+        Title = "Pomodoro Timer";
         CursorVisible = false;
 
         SetDimensions();
@@ -49,5 +50,59 @@ internal static class Settings
             ReadKey();
         }
         while (appStatus);
+    }
+
+    public static void RenderInstructionsBox()
+    {
+        var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
+        string[,] arr = new string[9, 34]; 
+
+        for (int i = 0; i < arr.GetLength(0); i++)
+        {
+            for (int j = 0; j < arr.GetLength(1); j++)
+            {
+                arr[i, j] = " ";
+            }
+        }
+
+        for (int i = 0; i < arr.GetLength(0);  i++)
+        {
+            for (int j = 0; j < arr.GetLength(1); j++)
+            {
+                SetCursorPosition(j + 1, 7 + i);
+                bool isBorder = j == 0 || j == arr.GetLength(1) - 1 || i == 0 || i == arr.GetLength(0) - 1;
+
+                if (isBorder)
+                {
+                    BackgroundColor = ConsoleColor.DarkGray;
+                    Write(arr[i, j]);
+                }
+                else
+                {
+                    BackgroundColor = ConsoleColor.Black;
+                    Write(" ");
+                }
+                ResetColor();
+            }
+            WriteLine();
+        }
+
+        SetCursorPosition(initialCursorPosition.Left, initialCursorPosition.Top);
+    }
+
+    public static void RenderInstructionsContent()
+    {
+        var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
+
+        SetCursorPosition(2, 8);
+        Write("To pause/unpause, press \u001b[32m<enter>\u001b[0m");
+        SetCursorPosition(2, 10);
+        Write("To restart, press \u001b[34m<enter>\u001b[0m");
+        SetCursorPosition(2, 12);
+        Write("To stop, press \u001b[33m<enter>\u001b[0m");
+        SetCursorPosition(2, 14);
+        Write("To close, press \u001b[31m<enter>\u001b[0m");
+
+        SetCursorPosition(initialCursorPosition.Left, initialCursorPosition.Top);
     }
 }

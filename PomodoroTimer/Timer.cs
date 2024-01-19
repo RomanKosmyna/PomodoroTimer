@@ -36,6 +36,8 @@ namespace PomodoroTimer
             
             Task.Run(Audio.OutputStartingAudio);
 
+            Settings.RenderInstructionsBox();
+            Settings.RenderInstructionsContent();
             StartCounter();
             Break.SetBreak();
             
@@ -49,7 +51,7 @@ namespace PomodoroTimer
         public static void StartCounter()
         {
             bool counterActive = true;
-            int totalSeconds = 1 * 10;
+            int totalSeconds = 30 * 60;
             int remainingSeconds = totalSeconds;
 
             Write("\n");
