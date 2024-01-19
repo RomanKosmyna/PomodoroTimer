@@ -40,7 +40,7 @@ internal static class Settings
 
             if (input == "Enter")
             {
-                Task.Run(() => StartApplication(timer));
+                StartApplication(timer);
                 appStatus = false;
             }
             else
@@ -121,58 +121,88 @@ internal static class Settings
         SetCursorPosition(initialCursorPosition.Left, initialCursorPosition.Top);
     }
 
+    //public static async Task StartApplication(Timer timer)
+    //{
+    //    bool status = true;
+
+    //    do
+    //    {
+    //        Task timerTask = timer.StartTimer();
+    //        Task audioTask = Task.Run(Audio.OutputStartingAudio);
+
+    //        RenderInstructionsBox();
+    //        RenderInstructionsContent();
+
+    //        Task counterTask = Timer.StartCounter();
+
+    //        var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
+
+    //        Task<string> userInputTask = StartingWindow.GetUserKeyAsync();
+    //        await Out.WriteLineAsync(userInputTask.Result);
+
+    //        await Task.WhenAny(userInputTask, counterTask);
+
+    //        if (userInputTask.IsCompleted && userInputTask.Result != null)
+    //        {
+    //            if (userInputTask.Result == "Enter")
+    //            {
+    //                ToggleApplication();
+    //            }
+    //            else if (userInputTask.Result == "RightArrow")
+    //            {
+    //                RestartApplication();
+    //            }
+    //            else if (userInputTask.Result == "UpArrow")
+    //            {
+    //                RestartApplication();
+    //            }
+    //            else if (userInputTask.Result == "Escape")
+    //            {
+    //                CloseApplication();
+    //            }
+    //        }
+
+    //        if (counterTask.IsCompleted)
+    //        {
+    //            Audio.OutputEndingAudio();
+    //        }
+    //        else
+    //        {
+    //            await counterTask;
+    //            Audio.OutputEndingAudio();
+    //        }
+    //    }
+    //    while (status);
+    //}
     public static async Task StartApplication(Timer timer)
     {
-        bool status = true;
-
+        bool appStatus = true;
+        
         do
         {
-            Task timerTask = timer.StartTimer();
-            Task audioTask = Task.Run(Audio.OutputStartingAudio);
+            Clear();
+            WriteLine("\nYou are inside StartApp method!");
+            // Renders current time on a screen.
+            timer.RenderCurrentTime();
+            Task.Run(Audio.OutputStartingAudio);
 
+            // Renders a box in the bottom part of the application with possible options.
             RenderInstructionsBox();
             RenderInstructionsContent();
 
-            Task counterTask = Timer.StartCounter();
+            // Starts counter for how much time is left.
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            Task runCounter = timer.StartCounter(cancellationTokenSource);
 
-            var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
-
-            Task<string> userInputTask = StartingWindow.GetUserKeyAsync();
-            await Out.WriteLineAsync(userInputTask.Result);
-
-            await Task.WhenAny(userInputTask, counterTask);
-
-            //if (userInputTask.IsCompleted && userInputTask.Result != null)
-            //{
-            //    if (userInputTask.Result == "Enter")
-            //    {
-            //        ToggleApplication();
-            //    }
-            //    else if (userInputTask.Result == "RightArrow")
-            //    {
-            //        RestartApplication();
-            //    }
-            //    else if (userInputTask.Result == "UpArrow")
-            //    {
-            //        RestartApplication();
-            //    }
-            //    else if (userInputTask.Result == "Escape")
-            //    {
-            //        CloseApplication();
-            //    }
-            //}
-
-            if (counterTask.IsCompleted)
+            Task<string> input = StartingWindow.GetUserKeyAsync();
+            await Out.WriteLineAsync(input.Result);
+            if (input.Result != "Enter")
             {
-                Audio.OutputEndingAudio();
-            }
-            else
-            {
-                await counterTask;
-                Audio.OutputEndingAudio();
+                cancellationTokenSource.Cancel();
+                continue;
             }
         }
-        while (status);
+        while (appStatus);
     }
 
     public static void RestartApplication()

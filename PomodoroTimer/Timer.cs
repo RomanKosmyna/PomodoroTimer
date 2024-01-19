@@ -25,7 +25,7 @@ namespace PomodoroTimer
             ReadKey();
         }
 
-        public async Task StartTimer()
+        public void RenderCurrentTime()
         {
             DateTime currentTime = DateTime.Now;
             
@@ -41,7 +41,7 @@ namespace PomodoroTimer
             _timer.Stop();
         }
 
-        public static async Task StartCounter()
+        public async Task StartCounter(CancellationTokenSource cancellationToken)
         {
             bool counterActive = true;
             int totalSeconds = 1 * 10;
@@ -54,9 +54,15 @@ namespace PomodoroTimer
                 int minutes = remainingSeconds / 60;
                 int seconds = remainingSeconds % 60;
 
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    counterActive = false;
+                }
+
                 Write($"{minutes:00}:{seconds:00}\r");
 
                 remainingSeconds--;
+
                 await Task.Delay(1000);
                 if (remainingSeconds == 0)
                 {
