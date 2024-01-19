@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using System.Diagnostics;
+using static System.Console;
 
 namespace PomodoroTimer;
 
@@ -38,8 +39,14 @@ internal static class Settings
                 case "Enter":
                     timer.StartTimer();
                     break;
+                case "RightArrow":
+                    RestartApplication();
+                    break;
+                case "UpArrow":
+                    CloseApplication();
+                    break;
                 case "Escape":
-                    timer.StopTimer();
+                    CloseApplication();
                     break;
                 default:
                     Write("\n");
@@ -95,14 +102,49 @@ internal static class Settings
         var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
 
         SetCursorPosition(2, 8);
-        Write("To pause/unpause, press \u001b[32m<enter>\u001b[0m");
+        Write("To pause/unpause, press ");
+        ForegroundColor = ConsoleColor.Green;
+        WriteLine("<enter>");
+        ResetColor();
         SetCursorPosition(2, 10);
-        Write("To restart, press \u001b[34m<enter>\u001b[0m");
+        Write("To restart, press ");
+        ForegroundColor = ConsoleColor.Blue;
+        WriteLine("<RightArrow>");
+        ResetColor();
         SetCursorPosition(2, 12);
-        Write("To stop, press \u001b[33m<enter>\u001b[0m");
+        Write("To stop, press ");
+        ForegroundColor = ConsoleColor.Yellow;
+        WriteLine("<UpArrow>");
+        ResetColor();
         SetCursorPosition(2, 14);
-        Write("To close, press \u001b[31m<enter>\u001b[0m");
+        Write("To close, press ");
+        ForegroundColor = ConsoleColor.Red;
+        WriteLine("<escape>");
+        ResetColor();
 
         SetCursorPosition(initialCursorPosition.Left, initialCursorPosition.Top);
+    }
+
+    public static void RestartApplication()
+    {
+        string exePath = Process.GetCurrentProcess().MainModule.FileName;
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = exePath,
+            UseShellExecute = true
+        });
+
+        Environment.Exit(0);
+    }
+
+    public static void StopApplication()
+    {
+
+    }
+
+    public static void CloseApplication()
+    {
+        Environment.Exit(0);
     }
 }
