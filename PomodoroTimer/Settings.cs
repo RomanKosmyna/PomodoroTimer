@@ -23,7 +23,7 @@ internal static class Settings
         SetBufferSize(_windowWidth, _windowHeight);
     }
 
-    public static void RunApp(Timer timer)
+    public static async Task RunApp(Timer timer)
     {
         bool appStatus = true;
         bool error = false;
@@ -37,7 +37,7 @@ internal static class Settings
             switch (input)
             {
                 case "Enter":
-                    timer.StartTimer();
+                    await timer.StartTimer();
                     break;
                 case "RightArrow":
                     RestartApplication();
@@ -106,16 +106,19 @@ internal static class Settings
         ForegroundColor = ConsoleColor.Green;
         WriteLine("<enter>");
         ResetColor();
+
         SetCursorPosition(2, 10);
         Write("To restart, press ");
         ForegroundColor = ConsoleColor.Blue;
         WriteLine("<RightArrow>");
         ResetColor();
+
         SetCursorPosition(2, 12);
         Write("To stop, press ");
         ForegroundColor = ConsoleColor.Yellow;
         WriteLine("<UpArrow>");
         ResetColor();
+
         SetCursorPosition(2, 14);
         Write("To close, press ");
         ForegroundColor = ConsoleColor.Red;

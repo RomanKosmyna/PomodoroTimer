@@ -24,7 +24,7 @@ namespace PomodoroTimer
             ReadKey();
         }
 
-        public void StartTimer()
+        public async Task StartTimer()
         {
             DateTime currentTime = DateTime.Now;
             
@@ -33,7 +33,7 @@ namespace PomodoroTimer
             WriteLine("Timer has been set.");
             Write("\n");
             WriteLine($"Current time is {currentTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
-            
+
             Task.Run(Audio.OutputStartingAudio);
 
             Settings.RenderInstructionsBox();
@@ -48,10 +48,10 @@ namespace PomodoroTimer
             _timer.Stop();
         }
 
-        public static void StartCounter()
+        public static async Task StartCounter()
         {
             bool counterActive = true;
-            int totalSeconds = 30 * 60;
+            int totalSeconds = 1 * 20;
             int remainingSeconds = totalSeconds;
 
             Write("\n");
@@ -64,7 +64,7 @@ namespace PomodoroTimer
                 Write($"{minutes:00}:{seconds:00}\r");
 
                 remainingSeconds--;
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 if (remainingSeconds == 0)
                 {
                     counterActive = false;
@@ -101,43 +101,6 @@ namespace PomodoroTimer
             //{
             //    Thread.Sleep(1000);
             //}
-        }
-
-        public static void StartNewProcess()
-        {
-            //ThreadPool.QueueUserWorkItem(_ => StartNewProcess());
-
-            ProcessStartInfo psi = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                RedirectStandardInput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true
-            };
-
-            Process p = new Process
-            {
-                StartInfo = psi
-            };
-
-            p.Start();
-
-            StreamWriter sw = p.StandardInput;
-            StreamReader sr = p.StandardOutput;
-
-            // Execute a command in the new process
-            sw.WriteLine("echo Hello world!");
-
-            // Optionally, you can read the output from the new process
-            string output = sr.ReadToEnd();
-            sr.Close();
-
-            Console.WriteLine($"Output from the new process:\n{output}");
-
-            // Close the input stream and wait for the process to exit
-            sw.Close();
-            p.WaitForExit();
         }
     }
 }
