@@ -44,7 +44,7 @@ namespace PomodoroTimer
         public static async Task StartCounter()
         {
             bool counterActive = true;
-            int totalSeconds = 1 * 20;
+            int totalSeconds = 1 * 10;
             int remainingSeconds = totalSeconds;
 
             Write("\n");
