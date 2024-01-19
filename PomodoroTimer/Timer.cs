@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using System.Threading;
 using static System.Console;
 
 namespace PomodoroTimer
@@ -33,14 +34,6 @@ namespace PomodoroTimer
             WriteLine("Timer has been set.");
             Write("\n");
             WriteLine($"Current time is {currentTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
-
-            Task.Run(Audio.OutputStartingAudio);
-
-            Settings.RenderInstructionsBox();
-            Settings.RenderInstructionsContent();
-            StartCounter();
-            Break.SetBreak();
-            
         }
 
         public void StopTimer()

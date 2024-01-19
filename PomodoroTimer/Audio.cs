@@ -22,7 +22,7 @@ internal class Audio
         }
     }
 
-    public static void OutputEndingAudio()
+    public static async Task OutputEndingAudio()
     {
         string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _endingAudioFileName);
 
@@ -33,7 +33,7 @@ internal class Audio
 
         while (outputDevice.PlaybackState == PlaybackState.Playing)
         {
-            Thread.Sleep(1000);
+            await Task.Delay(1000);
         }
     }
 }

@@ -26,4 +26,17 @@ internal static class StartingWindow
         
         return input;
     }
+
+    public static async Task<string> GetUserKeyAsync()
+    {
+        while (true)
+        {
+            if (KeyAvailable)
+            {
+                ConsoleKeyInfo key = ReadKey(true);
+                return key.Key.ToString();
+            }
+            //await Task.Delay(10);
+        }
+    }
 }

@@ -23,10 +23,9 @@ internal static class Settings
         SetBufferSize(_windowWidth, _windowHeight);
     }
 
-    public static async Task RunApp(Timer timer)
+    public static void RunApp(Timer timer)
     {
         bool appStatus = true;
-        bool error = false;
 
         do
         {
@@ -34,24 +33,14 @@ internal static class Settings
 
             string input = StartingWindow.GetUserKey();
 
-            switch (input)
+            if (input == "Enter")
             {
-                case "Enter":
-                    await timer.StartTimer();
-                    break;
-                case "RightArrow":
-                    RestartApplication();
-                    break;
-                case "UpArrow":
-                    CloseApplication();
-                    break;
-                case "Escape":
-                    CloseApplication();
-                    break;
-                default:
-                    Write("\n");
-                    WriteLine("Incorrect format.");
-                    break;
+                Task.Run(() => StartApplication(timer));
+                appStatus = false;
+            }
+            else
+            {
+                WriteLine("i");
             }
 
             ReadKey();
@@ -62,7 +51,7 @@ internal static class Settings
     public static void RenderInstructionsBox()
     {
         var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
-        string[,] arr = new string[9, 34]; 
+        string[,] arr = new string[9, 34];
 
         for (int i = 0; i < arr.GetLength(0); i++)
         {
@@ -72,7 +61,7 @@ internal static class Settings
             }
         }
 
-        for (int i = 0; i < arr.GetLength(0);  i++)
+        for (int i = 0; i < arr.GetLength(0); i++)
         {
             for (int j = 0; j < arr.GetLength(1); j++)
             {
@@ -128,6 +117,53 @@ internal static class Settings
         SetCursorPosition(initialCursorPosition.Left, initialCursorPosition.Top);
     }
 
+    public static async Task StartApplication(Timer timer)
+    {
+        Task timerTask = timer.StartTimer();
+        Task audioTask = Task.Run(Audio.OutputStartingAudio);
+
+        RenderInstructionsBox();
+        RenderInstructionsContent();
+
+        Task counterTask = Timer.StartCounter();
+
+        var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
+        SetCursorPosition(initialCursorPosition.Left, 18);
+        Task<string> userInputTask = StartingWindow.GetUserKeyAsync();
+        SetCursorPosition(initialCursorPosition.Left, initialCursorPosition.Top);
+        //await Task.WhenAny(userInputTask, counterTask);
+
+        if (userInputTask.IsCompleted && userInputTask.Result != null)
+        {
+            if (userInputTask.Result == "Enter")
+            {
+                ToggleApplication();
+            }
+            else if (userInputTask.Result == "RightArrow")
+            {
+                RestartApplication();
+            }
+            else if (userInputTask.Result == "UpArrow")
+            {
+                RestartApplication();
+            }
+            else if (userInputTask.Result == "Escape")
+            {
+                CloseApplication();
+            }
+        }
+
+        if (counterTask.IsCompleted)
+        {
+            Audio.OutputEndingAudio();
+        }
+        else
+        {
+            await counterTask;
+            Audio.OutputEndingAudio();
+        }
+    }
+
     public static void RestartApplication()
     {
         string exePath = Process.GetCurrentProcess().MainModule.FileName;
@@ -141,7 +177,7 @@ internal static class Settings
         Environment.Exit(0);
     }
 
-    public static void StopApplication()
+    public static void ToggleApplication()
     {
 
     }
