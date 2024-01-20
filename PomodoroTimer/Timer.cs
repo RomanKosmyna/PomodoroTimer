@@ -54,14 +54,14 @@ namespace PomodoroTimer
                 int minutes = remainingSeconds / 60;
                 int seconds = remainingSeconds % 60;
 
+                Write($"{minutes:00}:{seconds:00}\r");
+
+                remainingSeconds--;
+
                 if (cancellationToken.IsCancellationRequested)
                 {
                     counterActive = false;
                 }
-
-                Write($"{minutes:00}:{seconds:00}\r");
-
-                remainingSeconds--;
 
                 await Task.Delay(1000);
                 if (remainingSeconds == 0)

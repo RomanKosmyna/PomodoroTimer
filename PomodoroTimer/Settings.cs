@@ -196,13 +196,35 @@ internal static class Settings
 
             Task<string> input = StartingWindow.GetUserKeyAsync();
             await Out.WriteLineAsync(input.Result);
-            if (input.Result != "Enter")
-            {
-                cancellationTokenSource.Cancel();
-                continue;
-            }
+
+            HandleUserInput(input.Result);
         }
         while (appStatus);
+    }
+
+    private static void HandleUserInput(string userInput)
+    {
+        if (userInput == "Enter")
+        {
+            ToggleApplication();
+        }
+        else if (userInput == "RightArrow")
+        {
+            RestartApplication();
+        }
+        else if (userInput == "UpArrow")
+        {
+            ToggleApplication();
+        }
+        else if (userInput == "Escape")
+        {
+            CloseApplication();
+        }
+    }
+
+    public static void ToggleApplication()
+    {
+
     }
 
     public static void RestartApplication()
@@ -216,11 +238,6 @@ internal static class Settings
         });
 
         Environment.Exit(0);
-    }
-
-    public static void ToggleApplication()
-    {
-
     }
 
     public static void CloseApplication()
