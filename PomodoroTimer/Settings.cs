@@ -40,7 +40,7 @@ internal static class Settings
 
             if (input == "Enter")
             {
-                Task.Run(() => StartApplication(timer));
+                StartApplication(timer);
                 appStatus = false;
             }
             else
@@ -55,7 +55,7 @@ internal static class Settings
     public static void RenderInstructionsBox()
     {
         var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
-        string[,] arr = new string[9, 34];
+        string[,] arr = new string[7, 34];
 
         for (int i = 0; i < arr.GetLength(0); i++)
         {
@@ -107,12 +107,6 @@ internal static class Settings
         ResetColor();
 
         SetCursorPosition(2, 12);
-        Write("To stop, press ");
-        ForegroundColor = ConsoleColor.Yellow;
-        WriteLine("<UpArrow>");
-        ResetColor();
-
-        SetCursorPosition(2, 14);
         Write("To close, press ");
         ForegroundColor = ConsoleColor.Red;
         WriteLine("<escape>");
@@ -123,56 +117,49 @@ internal static class Settings
 
     public static async Task StartApplication(Timer timer)
     {
-        bool status = true;
+        bool appStatus = true;
 
         do
         {
-            Task timerTask = timer.StartTimer();
-            Task audioTask = Task.Run(Audio.OutputStartingAudio);
+            // Renders current time on a screen.
+            timer.RenderCurrentTime();
+            Task.Run(Audio.OutputStartingAudio);
 
+            // Renders a box in the bottom part of the application with possible options.
             RenderInstructionsBox();
             RenderInstructionsContent();
 
-            Task counterTask = Timer.StartCounter();
+            // Starts counter for how much time is left.
+            timer.StartCounter();
+  
+            Task<string> input = StartingWindow.GetUserKeyAsync();
 
-            var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
-
-            Task<string> userInputTask = StartingWindow.GetUserKeyAsync();
-            await Out.WriteLineAsync(userInputTask.Result);
-
-            await Task.WhenAny(userInputTask, counterTask);
-
-            //if (userInputTask.IsCompleted && userInputTask.Result != null)
-            //{
-            //    if (userInputTask.Result == "Enter")
-            //    {
-            //        ToggleApplication();
-            //    }
-            //    else if (userInputTask.Result == "RightArrow")
-            //    {
-            //        RestartApplication();
-            //    }
-            //    else if (userInputTask.Result == "UpArrow")
-            //    {
-            //        RestartApplication();
-            //    }
-            //    else if (userInputTask.Result == "Escape")
-            //    {
-            //        CloseApplication();
-            //    }
-            //}
-
-            if (counterTask.IsCompleted)
-            {
-                Audio.OutputEndingAudio();
-            }
-            else
-            {
-                await counterTask;
-                Audio.OutputEndingAudio();
-            }
+            HandleUserInput(input.Result, timer, ref appStatus);
         }
-        while (status);
+        while (appStatus);
+    }
+
+    private static void HandleUserInput(string userInput, Timer timer, ref bool appStatus)
+    {
+        switch (userInput)
+        {
+            case "Enter":
+                ToggleApplication(timer);
+                break;
+            case "RightArrow":
+                RestartApplication();
+                break;
+            case "Escape":
+                CloseApplication();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public static void ToggleApplication(Timer timer)
+    {
+        timer.GetTimer.Stop();
     }
 
     public static void RestartApplication()
@@ -186,11 +173,6 @@ internal static class Settings
         });
 
         Environment.Exit(0);
-    }
-
-    public static void ToggleApplication()
-    {
-
     }
 
     public static void CloseApplication()
