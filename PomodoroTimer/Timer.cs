@@ -30,7 +30,7 @@ namespace PomodoroTimer
 
         public async Task StartCounter()
         {
-            int totalSeconds = 1 * 10;
+            int totalSeconds = 30 * 60;
             int remainingSeconds = totalSeconds;
 
             WriteLine("\nTime left:");
