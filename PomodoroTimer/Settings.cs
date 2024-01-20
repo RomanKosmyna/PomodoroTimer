@@ -191,30 +191,27 @@ internal static class Settings
             RenderInstructionsContent();
 
             // Starts counter for how much time is left.
+            bool toggle = false;
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task runCounter = timer.StartCounter(cancellationTokenSource);
+            Task runCounter = Timer.StartCounter(cancellationTokenSource.Token, () => toggle);
 
             Task<string> input = StartingWindow.GetUserKeyAsync();
             await Out.WriteLineAsync(input.Result);
 
-            HandleUserInput(input.Result);
+            HandleUserInput(input.Result, runCounter, cancellationTokenSource, () => toggle);
         }
         while (appStatus);
     }
 
-    private static void HandleUserInput(string userInput)
+    private static void HandleUserInput(string userInput, Task counter, CancellationTokenSource cancellationToken, Func<bool> toggleFunc)
     {
-        if (userInput == "Enter")
+        if (userInput == "LeftArrow")
         {
-            ToggleApplication();
+            ToggleApplication(counter, cancellationToken, toggleFunc);
         }
         else if (userInput == "RightArrow")
         {
             RestartApplication();
-        }
-        else if (userInput == "UpArrow")
-        {
-            ToggleApplication();
         }
         else if (userInput == "Escape")
         {
@@ -222,9 +219,23 @@ internal static class Settings
         }
     }
 
-    public static void ToggleApplication()
+    public static void ToggleApplication(Task counter, CancellationTokenSource cancellationTokenSource, Func<bool> toggleFunc)
     {
+        bool toggle = toggleFunc.Invoke();
+        toggle = !toggle;
 
+        if (toggle)
+        {
+            cancellationTokenSource.Cancel();
+        }
+        else
+        {
+            // Create a new CancellationTokenSource
+            CancellationTokenSource newCancellationTokenSource = new CancellationTokenSource();
+
+            // Pass the new CancellationTokenSource to StartCounter
+            _ = counter.ContinueWith(_ => Timer.StartCounter(newCancellationTokenSource.Token, () => toggle));
+        }
     }
 
     public static void RestartApplication()

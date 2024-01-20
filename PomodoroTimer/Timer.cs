@@ -41,15 +41,16 @@ namespace PomodoroTimer
             _timer.Stop();
         }
 
-        public async Task StartCounter(CancellationTokenSource cancellationToken)
+        public static async Task StartCounter(CancellationToken cancellationToken, Func<bool> toggleFunc)
         {
-            bool counterActive = true;
             int totalSeconds = 1 * 10;
             int remainingSeconds = totalSeconds;
 
-            Write("\n");
-            WriteLine("Time left:");
-            do
+            WriteLine("\nTime left:");
+            Write("00:10\r");
+
+            System.Timers.Timer counterTimer = new(1000);
+            counterTimer.Elapsed += (sender, e) =>
             {
                 int minutes = remainingSeconds / 60;
                 int seconds = remainingSeconds % 60;
@@ -58,18 +59,29 @@ namespace PomodoroTimer
 
                 remainingSeconds--;
 
-                if (cancellationToken.IsCancellationRequested)
+                bool toggle = toggleFunc.Invoke();
+                if (toggle)
                 {
-                    counterActive = false;
+                    counterTimer.Stop();
+                }
+                else
+                {
+                    counterTimer.Start();
                 }
 
-                await Task.Delay(1000);
-                if (remainingSeconds == 0)
+                if (remainingSeconds == 0 || cancellationToken.IsCancellationRequested)
                 {
-                    counterActive = false;
+                    counterTimer.Stop();
+                    counterTimer.Dispose();
                 }
+            };
+
+            counterTimer.Start();
+
+            while (counterTimer.Enabled)
+            {
+                await Task.Delay(1000);
             }
-            while (counterActive);
         }
 
         public static void StopTimer(string userInput)
