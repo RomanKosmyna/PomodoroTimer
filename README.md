@@ -2,7 +2,7 @@
 
 First time using NuGet package: NUadio.
 
-Worked with new concepts:
+Worked with following new concepts:
 - Async programming
 - Timer
 - Adding and manipulating audio
