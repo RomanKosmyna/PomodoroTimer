@@ -7,22 +7,14 @@ namespace PomodoroTimer
 {
     internal class Timer
     {
-        private readonly int _interval = 100;
-        private static readonly int _pomodoroTime = 30;
+        private readonly int _interval = 1000;
         private readonly System.Timers.Timer _timer;
+
+        public System.Timers.Timer GetTimer => _timer;
 
         public Timer()
         {
             _timer = new System.Timers.Timer(_interval);
-        }
-
-        public static void Run()
-        {
-            StartingWindow.InitialiseStartingText();
-
-            string input = StartingWindow.GetUserKey();
-
-            ReadKey();
         }
 
         public void RenderCurrentTime()
@@ -36,21 +28,14 @@ namespace PomodoroTimer
             WriteLine($"Current time is {currentTime.ToString("hh:mm tt", CultureInfo.InvariantCulture)}.");
         }
 
-        public void StopTimer()
-        {
-            _timer.Stop();
-        }
-
-        public static async Task StartCounter(CancellationToken cancellationToken, Func<bool> toggleFunc)
+        public async Task StartCounter()
         {
             int totalSeconds = 1 * 10;
             int remainingSeconds = totalSeconds;
 
             WriteLine("\nTime left:");
-            Write("00:10\r");
-
-            System.Timers.Timer counterTimer = new(1000);
-            counterTimer.Elapsed += (sender, e) =>
+            
+            _timer.Elapsed += (sender, e) =>
             {
                 int minutes = remainingSeconds / 60;
                 int seconds = remainingSeconds % 60;
@@ -59,29 +44,15 @@ namespace PomodoroTimer
 
                 remainingSeconds--;
 
-                bool toggle = toggleFunc.Invoke();
-                if (toggle)
+                if (remainingSeconds == 0)
                 {
-                    counterTimer.Stop();
-                }
-                else
-                {
-                    counterTimer.Start();
-                }
-
-                if (remainingSeconds == 0 || cancellationToken.IsCancellationRequested)
-                {
-                    counterTimer.Stop();
-                    counterTimer.Dispose();
+                    _timer.Stop();
+                    _timer.Dispose();
+                    Audio.OutputEndingAudio();
                 }
             };
 
-            counterTimer.Start();
-
-            while (counterTimer.Enabled)
-            {
-                await Task.Delay(1000);
-            }
+            _timer.Start();
         }
 
         public static void StopTimer(string userInput)
@@ -90,28 +61,6 @@ namespace PomodoroTimer
             {
                 Environment.Exit(0);
             }
-        }
-
-        public void SetTimer()
-        {
-            _timer.Elapsed += OnTimedEvent;
-            _timer.AutoReset = false;
-            _timer.Enabled = true;
-        }
-
-        public void OnTimedEvent(object sender, EventArgs e)
-        {
-            //string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _audioFileName);
-
-            //using var audioFile = new AudioFileReader(fullPath);
-            //using var outputDevice = new WaveOutEvent();
-            //outputDevice.Init(audioFile);
-            //outputDevice.Play();
-
-            //while (outputDevice.PlaybackState == PlaybackState.Playing)
-            //{
-            //    Thread.Sleep(1000);
-            //}
         }
     }
 }

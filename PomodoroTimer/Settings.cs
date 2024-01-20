@@ -55,7 +55,7 @@ internal static class Settings
     public static void RenderInstructionsBox()
     {
         var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
-        string[,] arr = new string[9, 34];
+        string[,] arr = new string[7, 34];
 
         for (int i = 0; i < arr.GetLength(0); i++)
         {
@@ -107,12 +107,6 @@ internal static class Settings
         ResetColor();
 
         SetCursorPosition(2, 12);
-        Write("To stop, press ");
-        ForegroundColor = ConsoleColor.Yellow;
-        WriteLine("<UpArrow>");
-        ResetColor();
-
-        SetCursorPosition(2, 14);
         Write("To close, press ");
         ForegroundColor = ConsoleColor.Red;
         WriteLine("<escape>");
@@ -121,67 +115,12 @@ internal static class Settings
         SetCursorPosition(initialCursorPosition.Left, initialCursorPosition.Top);
     }
 
-    //public static async Task StartApplication(Timer timer)
-    //{
-    //    bool status = true;
-
-    //    do
-    //    {
-    //        Task timerTask = timer.StartTimer();
-    //        Task audioTask = Task.Run(Audio.OutputStartingAudio);
-
-    //        RenderInstructionsBox();
-    //        RenderInstructionsContent();
-
-    //        Task counterTask = Timer.StartCounter();
-
-    //        var initialCursorPosition = new { Left = CursorLeft, Top = CursorTop };
-
-    //        Task<string> userInputTask = StartingWindow.GetUserKeyAsync();
-    //        await Out.WriteLineAsync(userInputTask.Result);
-
-    //        await Task.WhenAny(userInputTask, counterTask);
-
-    //        if (userInputTask.IsCompleted && userInputTask.Result != null)
-    //        {
-    //            if (userInputTask.Result == "Enter")
-    //            {
-    //                ToggleApplication();
-    //            }
-    //            else if (userInputTask.Result == "RightArrow")
-    //            {
-    //                RestartApplication();
-    //            }
-    //            else if (userInputTask.Result == "UpArrow")
-    //            {
-    //                RestartApplication();
-    //            }
-    //            else if (userInputTask.Result == "Escape")
-    //            {
-    //                CloseApplication();
-    //            }
-    //        }
-
-    //        if (counterTask.IsCompleted)
-    //        {
-    //            Audio.OutputEndingAudio();
-    //        }
-    //        else
-    //        {
-    //            await counterTask;
-    //            Audio.OutputEndingAudio();
-    //        }
-    //    }
-    //    while (status);
-    //}
     public static async Task StartApplication(Timer timer)
     {
         bool appStatus = true;
-        
+
         do
         {
-            Clear();
-            WriteLine("\nYou are inside StartApp method!");
             // Renders current time on a screen.
             timer.RenderCurrentTime();
             Task.Run(Audio.OutputStartingAudio);
@@ -191,51 +130,36 @@ internal static class Settings
             RenderInstructionsContent();
 
             // Starts counter for how much time is left.
-            bool toggle = false;
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            Task runCounter = Timer.StartCounter(cancellationTokenSource.Token, () => toggle);
-
+            timer.StartCounter();
+  
             Task<string> input = StartingWindow.GetUserKeyAsync();
-            await Out.WriteLineAsync(input.Result);
 
-            HandleUserInput(input.Result, runCounter, cancellationTokenSource, () => toggle);
+            HandleUserInput(input.Result, timer, ref appStatus);
         }
         while (appStatus);
     }
 
-    private static void HandleUserInput(string userInput, Task counter, CancellationTokenSource cancellationToken, Func<bool> toggleFunc)
+    private static void HandleUserInput(string userInput, Timer timer, ref bool appStatus)
     {
-        if (userInput == "LeftArrow")
+        switch (userInput)
         {
-            ToggleApplication(counter, cancellationToken, toggleFunc);
-        }
-        else if (userInput == "RightArrow")
-        {
-            RestartApplication();
-        }
-        else if (userInput == "Escape")
-        {
-            CloseApplication();
+            case "Enter":
+                ToggleApplication(timer);
+                break;
+            case "RightArrow":
+                RestartApplication();
+                break;
+            case "Escape":
+                CloseApplication();
+                break;
+            default:
+                break;
         }
     }
 
-    public static void ToggleApplication(Task counter, CancellationTokenSource cancellationTokenSource, Func<bool> toggleFunc)
+    public static void ToggleApplication(Timer timer)
     {
-        bool toggle = toggleFunc.Invoke();
-        toggle = !toggle;
-
-        if (toggle)
-        {
-            cancellationTokenSource.Cancel();
-        }
-        else
-        {
-            // Create a new CancellationTokenSource
-            CancellationTokenSource newCancellationTokenSource = new CancellationTokenSource();
-
-            // Pass the new CancellationTokenSource to StartCounter
-            _ = counter.ContinueWith(_ => Timer.StartCounter(newCancellationTokenSource.Token, () => toggle));
-        }
+        timer.GetTimer.Stop();
     }
 
     public static void RestartApplication()
